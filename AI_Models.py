@@ -1,0 +1,1 @@
+validate_ai_writing_Modle = "gpt-4o-mini"
