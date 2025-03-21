@@ -1,6 +1,7 @@
 import openai
-from Ai_API_Key import OPENAI_API , validate_ai_writing_Modle
-def chat_with_gpt(title):
+from Ai_API_Key import OPENAI_API
+from AI_Models import validate_ai_writing_Modle
+def validate_ai_writing(title):
     client = openai.OpenAI(api_key= OPENAI_API)
 
     response = client.chat.completions.create(
