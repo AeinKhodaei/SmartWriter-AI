@@ -139,11 +139,14 @@ def raq_system(title , words):
     texts = ""
     article = ""
     SearchTitles = SuggestSearchTitles(title , words)
+    print("Geting SearchTitles ....")
 
     SearchTitles_list = SearchTitles.split("\n")
     for i in SearchTitles_list:
         article_links = google_search(i)
+        print("Searching for title ....")
         for i in article_links:
+            print("Producing sub-articles ....")
             article_text = get_article_content(i)
             article = article + HTMLTAGStoArticle(article_text)+"\n"+"-------------------------------------------------------------------------"+"\n"
     return article
