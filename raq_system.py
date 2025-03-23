@@ -4,9 +4,57 @@ from AI_Models import Google_Custom_Search_Engine , openrouter_modle
 from Ai_API_Key import Custom_Search_API , openrouter_API
 from openai import OpenAI
 API_KEY = Custom_Search_API  # جایگزین با کلید API شما
-SEARCH_ENGINE_ID = Google_Custom_Search_Engine  # جایگزین با Search Engine ID شما
+SEARCH_ENGINE_ID = Google_Custom_Search_Engine 
+ # جایگزین با Search Engine ID شما
+def SuggestSearchTitles(title , words):
+    client = OpenAI(
+  base_url="https://openrouter.ai/api/v1",
+  api_key= openrouter_API,
+    )
 
-def google_search(query, num_results=10):
+    completion = client.chat.completions.create(
+    model= openrouter_modle,
+    messages=[
+        {
+        "role": "system",
+        "content": [
+            {
+            "type": "text",
+            "text": """شما یک هوش مصنوعی پیشرفته برای پیشنهاد عبارات جستجو هستید. بر اساس **عنوان مقاله** و **کلمات کلیدی** داده‌شده، **۴ عبارت جستجو** پیشنهاد دهید:  
+- ۲ عبارت برای جستجو در منابع انگلیسی  
+- ۲ عبارت برای جستجو در منابع فارسی  
+- فقط عبارات جستجو را نمایش دهید و هیچ متن اضافی ننویسید.  
+- هر عبارت را در یک خط بنویس.  
+
+### ورودی نمونه:  
+عنوان مقاله: **تأثیر هوش مصنوعی در بازاریابی دیجیتال**  
+کلمات کلیدی: **هوش مصنوعی، بازاریابی دیجیتال، تبلیغات هوشمند، تحلیل داده**  
+
+### خروجی مورد انتظار:  
+AI impact on digital marketing  
+Best AI tools for online advertising  
+تأثیر هوش مصنوعی بر بازاریابی دیجیتال  
+بهترین ابزارهای هوش مصنوعی برای تبلیغات  
+"""
+            }
+        ]
+        },
+        {
+        "role": "user",
+        "content": [
+            {
+            "type": "text",
+            "text": f"""
+عنوان : {title}
+کلمات کلیدی : {words}"""
+            }
+        ]
+        }
+    ]
+    )
+    return completion.choices[0].message.content
+
+def google_search(query, num_results=2):
     url = "https://www.googleapis.com/customsearch/v1"
     params = {
         "q": query,
@@ -87,10 +135,16 @@ A complete, structured, and readable article with the original content intact bu
     ]
     )
     return completion.choices[0].message.content
+def raq_system(title , words):
+    texts = ""
+    article = ""
+    SearchTitles = SuggestSearchTitles(title , words)
 
-links = google_search("10 هوش مصنوعی برتر برای ساخت عکس")
-text = ""
-for i in links:
-    output = get_article_content(i)
-    finaloutput = HTMLTAGStoArticle(output)
-    print(finaloutput)
+    SearchTitles_list = SearchTitles.split("\n")
+    for i in SearchTitles_list:
+        article_links = google_search(i)
+        for i in article_links:
+            article_text = get_article_content(i)
+            article = article + HTMLTAGStoArticle(article_text)+"\n"+"-------------------------------------------------------------------------"+"\n"
+    return article
+
